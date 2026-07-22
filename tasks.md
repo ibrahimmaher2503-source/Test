@@ -85,9 +85,19 @@ for field-level detail — this file only sequences the work.
       actual pending_review product created via a scan) waits for Phase 7.
 
 ## Phase 5 — Product Branch Stock (expected quantities)
-- [ ] Editable grid/table: product × expected_quantity, scoped by branch
-- [ ] Branch Manager sees only their branch; Super Admin can switch branch
-- [ ] Track `updated_by` on change
+- [x] Editable grid/table: product × expected_quantity, scoped by branch — a custom
+      Filament page (`ProductBranchStockGrid`), not a Resource, per SPEC §4.5's
+      explicit note. Inline-editable via `TextInputColumn`.
+- [x] Branch Manager sees only their branch (branch column hidden, query hard-scoped);
+      Super Admin sees a `Branch` column + filter and can switch. Browser-verified
+      both views, including a real bug caught and fixed: `defaultSort('product.name_en')`
+      produced invalid SQL (`order by product.name_en` with no join) — Filament's
+      dotted-relation sugar only applies to column-level `->sortable()`, not the
+      table-level `defaultSort()`. Fixed by sorting on the column instead and
+      dropping the table-level default.
+- [x] Track `updated_by` on change — verified end to end: edited a quantity as
+      Branch Manager, confirmed in the DB (`updated_by` = that user's id) and
+      visually as Super Admin ("Last updated by: Branch Manager" on that row).
 
 ## Phase 6 — Inventory sessions (management side)
 - [ ] Inventory Sessions Filament resource: create (draft), assign counters, start,
