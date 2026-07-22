@@ -5,16 +5,17 @@ checked. Each phase should end in a working, demo-able state. Refer to `docs/SPE
 for field-level detail — this file only sequences the work.
 
 ## Phase 0 — Project setup
-- [ ] Laravel 12 project scaffolded
-- [ ] Filament v3 installed, admin panel reachable
-- [ ] MySQL connection configured
-- [ ] Install `spatie/laravel-permission`, publish + run its migrations
-- [ ] Install `picqer/php-barcode-generator`
-- [ ] Install `barryvdh/laravel-dompdf`
-- [ ] Install `maatwebsite/excel`
-- [ ] Add `html5-qrcode` via CDN or npm, confirm it loads on a blank test page
+- [x] Laravel 12 project scaffolded (v12.64.0, pinned per CLAUDE.md — `composer create-project` alone pulls Laravel 13, had to pin explicitly)
+- [x] Filament v3 installed, admin panel reachable (`/admin/login` returns 200)
+- [x] MySQL connection configured (local MariaDB 10.11 `barcode_inventory` db + `barcode_app` user for dev; production should point at real MySQL 8 per SPEC)
+- [x] Install `spatie/laravel-permission`, publish + run its migrations
+- [x] Install `picqer/php-barcode-generator`
+- [x] Install `barryvdh/laravel-dompdf`
+- [x] Install `maatwebsite/excel`
+- [x] Add `html5-qrcode` via npm, package resolves correctly — full in-browser confirmation deferred to Phase 7 when the scanning screen actually mounts it
 - [ ] Confirm local dev can test camera access (localhost is exempt from the HTTPS
-      requirement — verify this works before assuming it doesn't)
+      requirement — verify this works before assuming it doesn't) — deferred to Phase 7
+      manual QA on a real device per that phase's checklist
 
 ## Phase 1 — Data model
 - [ ] Migrations for: `branches`, `categories`, `products`, `product_branch_stock`,
