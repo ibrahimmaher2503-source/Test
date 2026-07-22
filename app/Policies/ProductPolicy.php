@@ -15,10 +15,15 @@ class ProductPolicy
 
     /**
      * Determine whether the user can view any models.
+     *
+     * Products screen is Super Admin + Branch Manager only (SPEC §4.4). Counters
+     * never reach the Filament resource — their read/create access to products is
+     * through the scanning screen (Phase 7), a separate Livewire page that talks to
+     * the model directly and doesn't go through this policy.
      */
     public function viewAny(User $user): bool
     {
-        return false;
+        return $user->hasRole(User::ROLE_BRANCH_MANAGER);
     }
 
     /**
@@ -26,7 +31,7 @@ class ProductPolicy
      */
     public function view(User $user, Product $product): bool
     {
-        return false;
+        return $user->hasRole(User::ROLE_BRANCH_MANAGER);
     }
 
     /**
@@ -34,7 +39,7 @@ class ProductPolicy
      */
     public function create(User $user): bool
     {
-        return false;
+        return $user->hasRole(User::ROLE_BRANCH_MANAGER);
     }
 
     /**
@@ -42,7 +47,7 @@ class ProductPolicy
      */
     public function update(User $user, Product $product): bool
     {
-        return false;
+        return $user->hasRole(User::ROLE_BRANCH_MANAGER);
     }
 
     /**
@@ -50,7 +55,7 @@ class ProductPolicy
      */
     public function delete(User $user, Product $product): bool
     {
-        return false;
+        return $user->hasRole(User::ROLE_BRANCH_MANAGER);
     }
 
     /**

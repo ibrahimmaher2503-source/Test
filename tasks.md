@@ -64,14 +64,25 @@ for field-level detail — this file only sequences the work.
       for either resource). Super Admin gets 200 on both.
 
 ## Phase 4 — Products & barcode generation/printing
-- [ ] Products Filament resource (Super Admin + Branch Manager), table + form per
-      SPEC §4.4
-- [ ] "Generate barcode" row action (sets `barcode`, `barcode_source = generated`)
-- [ ] "Print label" single + bulk action → PDF via DomPDF with barcode image
-      (label layout can be a simple first pass — refine only if requested)
-- [ ] `pending_review` status filter/view for Branch Manager to triage
-      scan-created products (this depends on Phase 6 existing, so the review UI can be
-      built now but only meaningfully tested after Phase 6)
+- [x] Products Filament resource (Super Admin + Branch Manager), table + form per
+      SPEC §4.4. `ProductPolicy` opened for `branch_manager` only — Counters never
+      reach this resource; their product access is entirely through the Phase 7
+      scanning screen, a separate code path that doesn't go through this policy.
+- [x] "Generate barcode" row action (sets `barcode`, `barcode_source = generated`) —
+      `BarcodeService::generateUniqueValue()`, retries on collision.
+- [x] "Print label" single + bulk action → PDF via DomPDF with barcode image
+      (simple 3-per-row grid, `resources/views/pdf/barcode-labels.blade.php`).
+      Records a `barcode_print_jobs` row per SPEC §3.9. Browser-verified end to end:
+      clicked "Generate barcode" on a barcode-less product, then "Print label",
+      got a real download — confirmed the PDF has a valid `/Catalog`, 1 page, and
+      an embedded `/Image` `/XObject` (the barcode itself, not just placeholder text).
+- [x] `pending_review` status filter/view — a `SelectFilter` on `status` (includes
+      `pending_review`) plus a `has_barcode` ternary filter. Note: this file's
+      original text said this depends on "Phase 6" (Inventory sessions); that looks
+      like an off-by-one in this file — `pending_review` products are actually
+      created by the Phase 7 scanning screen's unknown-barcode flow (SPEC §5.5), not
+      Phase 6. Filter is built now either way; meaningful end-to-end testing (an
+      actual pending_review product created via a scan) waits for Phase 7.
 
 ## Phase 5 — Product Branch Stock (expected quantities)
 - [ ] Editable grid/table: product × expected_quantity, scoped by branch
