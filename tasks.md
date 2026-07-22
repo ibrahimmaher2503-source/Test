@@ -32,11 +32,25 @@ for field-level detail — this file only sequences the work.
 - [x] `php artisan migrate:fresh --seed` runs clean
 
 ## Phase 2 — Auth & roles
-- [ ] Roles created: `super_admin`, `branch_manager`, `counter` (spatie)
-- [ ] Users table has role assignment + `branch_id` (nullable for super_admin)
-- [ ] Filament login works for all three roles
-- [ ] Policies scaffolded for every model, denying by default, then opened up per
-      SPEC §2 role table as each resource is built (don't grant broad access up front)
+- [x] Roles created: `super_admin`, `branch_manager`, `counter` (spatie) — `RoleSeeder`
+- [x] Users table has role assignment + `branch_id` (nullable for super_admin)
+- [x] Filament login works for all three roles — verified with real `Auth::attempt`
+      and a headless-browser login for each seeded user (admin/manager/counter)
+- [x] Policies scaffolded for every model, denying by default, with a `before()`
+      hook granting `super_admin` everything except `ScanEvent` update/delete/restore
+      (append-only holds even for admins). Only `UserPolicy` opened further this
+      phase, per the explicit SPEC §2 note on Branch Manager + counter accounts;
+      all other resources stay denied until their own phase builds them.
+- [x] **[gap in this file, not in SPEC]** `tasks.md` never scheduled the "Users"
+      screen from SPEC §4.2 as its own phase. Folded it into Phase 2 since it's
+      core to auth/roles: Filament `UserResource`, Branch Manager scoped to
+      counters in their own branch (query + policy), role field synced via
+      spatie `syncRoles()` in the Create/Edit pages. Browser-verified: Branch
+      Manager's list shows only their branch's counters, and creating a new
+      counter correctly assigns the role (a real bug was caught and fixed here —
+      the role `Select`'s `afterStateHydrated` was nulling out the default role
+      on the create form, which would have blocked every Branch-Manager-created
+      account; only reproducible in a real browser, not in tinker).
 
 ## Phase 3 — Branches & Categories
 - [ ] Branches Filament resource (Super Admin only)

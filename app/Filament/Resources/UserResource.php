@@ -57,8 +57,12 @@ class UserResource extends Resource
                     ->dehydrated()
                     ->required()
                     ->live()
-                    ->afterStateHydrated(function (Forms\Components\Select $component, ?User $record): void {
-                        $component->state($record?->getRoleNames()->first());
+                    ->afterStateHydrated(function (Forms\Components\Select $component, ?User $record) use ($isBranchManager): void {
+                        if ($record) {
+                            $component->state($record->getRoleNames()->first());
+                        } elseif ($isBranchManager) {
+                            $component->state(User::ROLE_COUNTER);
+                        }
                     }),
                 Forms\Components\Select::make('branch_id')
                     ->label('Branch')
