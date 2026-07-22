@@ -18,15 +18,18 @@ for field-level detail — this file only sequences the work.
       manual QA on a real device per that phase's checklist
 
 ## Phase 1 — Data model
-- [ ] Migrations for: `branches`, `categories`, `products`, `product_branch_stock`,
+- [x] Migrations for: `branches`, `categories`, `products`, `product_branch_stock`,
       `inventory_sessions`, `inventory_session_counters`, `inventory_count_lines`,
-      `scan_events`, `barcode_print_jobs` (SPEC §3)
-- [ ] Models with relationships, casts, and the `unique` constraints called out in
+      `scan_events`, `barcode_print_jobs` (SPEC §3), plus `users.branch_id`
+- [x] Models with relationships, casts, and the `unique` constraints called out in
       SPEC §3 (especially `products.barcode`, `product_branch_stock` composite unique,
-      `inventory_count_lines` composite unique)
-- [ ] Factories + seeders for local testing (a few branches, categories, products with
-      and without barcodes, a couple of users per role)
-- [ ] `php artisan migrate:fresh --seed` runs clean
+      `inventory_count_lines` composite unique). `variance` is a computed accessor, not
+      a stored column. `scan_events` model throws on update/delete to enforce
+      append-only at the Eloquent layer (not just "no UI for it").
+- [x] Factories + seeders for local testing (2 branches, 3 categories, 20 products —
+      15 with barcodes, 3 without, 2 pending_review — expected stock per branch).
+      Users per role deferred to Phase 2 (needs roles to exist first).
+- [x] `php artisan migrate:fresh --seed` runs clean
 
 ## Phase 2 — Auth & roles
 - [ ] Roles created: `super_admin`, `branch_manager`, `counter` (spatie)
