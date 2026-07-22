@@ -53,9 +53,15 @@ for field-level detail — this file only sequences the work.
       account; only reproducible in a real browser, not in tinker).
 
 ## Phase 3 — Branches & Categories
-- [ ] Branches Filament resource (Super Admin only)
-- [ ] Categories Filament resource (Super Admin + Branch Manager)
-- [ ] Manual QA: Branch Manager cannot see the Branches resource at all
+- [x] Branches Filament resource (Super Admin only — no policy grants needed
+      beyond the existing `before()` bypass, since default-deny already covers it)
+- [x] Categories Filament resource (Super Admin + Branch Manager — opened
+      `CategoryPolicy` viewAny/view/create/update/delete for `branch_manager`)
+- [x] Manual QA: Branch Manager cannot see the Branches resource at all —
+      browser-verified: `/admin/branches` returns 403 for Branch Manager, nav
+      sidebar has no "Branches" entry (screenshot), `/admin/categories` works
+      and is in the nav. Counter gets 403 on both (not part of SPEC §2 scope
+      for either resource). Super Admin gets 200 on both.
 
 ## Phase 4 — Products & barcode generation/printing
 - [ ] Products Filament resource (Super Admin + Branch Manager), table + form per
