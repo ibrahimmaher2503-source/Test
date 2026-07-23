@@ -122,20 +122,48 @@ for field-level detail — this file only sequences the work.
       after each transition.
 
 ## Phase 7 — Scanning screen (the core feature)
-- [ ] Custom Livewire page, mobile-first layout, reachable only for the session's
-      assigned counters while it's `in_progress` (plus manager/admin for oversight)
-- [ ] Camera integration via `html5-qrcode`, decode → Livewire action with raw barcode
-      string (lookup logic lives server-side, not in JS)
-- [ ] Known barcode → create/increment `inventory_count_lines`, log `scan_events`,
-      update on-screen running list, give a scan confirmation cue (SPEC §5.4)
-- [ ] Unknown barcode → prompt to quick-create a `pending_review` product inline,
-      then count it (SPEC §5.5)
-- [ ] Manual quantity adjustment path with required notes field, visually distinct
-      from scan-derived counts (SPEC §5.6)
+- [x] Custom Livewire page (`ScanningScreen`, route `scanning-screen/{session}`),
+      mobile-first layout, reachable only for the session's assigned counters while
+      it's `in_progress` (plus manager/admin for oversight per branch). A separate
+      "My Sessions" page (`MyInventorySessions`) lists a counter's assigned
+      in-progress sessions with a "Scan" link, per SPEC §5.1. Browser-verified: an
+      unassigned/other-branch counter gets 403 on the scan URL; the assigned
+      counter and the branch's manager both get 200.
+- [x] Camera integration via `html5-qrcode` (bundled through Vite as a dedicated
+      `scanner.js` entry, since Filament pages don't pull in the app's default
+      `app.js`), decode → Livewire `scan()` action with the raw barcode string
+      (lookup logic lives server-side in the Livewire component, not in JS).
+      Browser-verified with Chromium's fake video device
+      (`--use-fake-device-for-media-stream`) — the camera genuinely initializes
+      and html5-qrcode's viewfinder renders, not just a mock.
+- [x] Known barcode → create/increment `inventory_count_lines`, log `scan_events`,
+      update on-screen running list, scan confirmation cue (beep via Web Audio API
+      client-side + a Filament notification). Browser-verified: scanning the same
+      barcode twice correctly incremented counted_quantity to 2 with two
+      notifications and a live-updating list.
+- [x] Unknown barcode → prompt to quick-create a `pending_review` product inline,
+      then count it (SPEC §5.5). Browser-verified full round trip: unknown barcode
+      → quick-create form → product created with `status=pending_review`,
+      `barcode_source=existing` → count line created and incremented → confirmed
+      the product then surfaces under the Products "pending_review" filter for a
+      Branch Manager to triage.
+- [x] Manual quantity adjustment path with required notes field, visually distinct
+      from scan-derived counts (SPEC §5.6). Browser-verified: set an item to 40 with
+      a required note — confirmed in the DB that `notes` was saved and, importantly,
+      that manual adjustment does **not** create a `scan_events` row (only real
+      scans do) — `scan_events` stayed append-only-clean, confirmed by attempting a
+      direct update via tinker and getting the model-level exception.
 - [ ] Manual QA on an actual phone browser, not just desktop devtools emulation —
-      camera behavior and layout both need a real-device check
-- [ ] (Lower priority, do after the above is solid) keyboard-wedge text input
-      fallback per SPEC §5.7
+      **not done**: this sandbox has no real phone available. Everything above was
+      verified with a real (fake-device) camera stream and real Livewire round trips
+      in a headless browser, which covers the business logic and camera wiring, but
+      real-device touch/layout ergonomics (one-handed use, actual camera autofocus
+      behavior, viewport quirks) genuinely need a physical phone before shipping.
+- [x] Keyboard-wedge text input fallback per SPEC §5.7 — built alongside the camera
+      (not strictly "after it was solid" as the file suggested, since it turned out
+      to be the most practical way to drive the scan logic in an automated browser
+      test without real camera hardware). This was the actual input used for all
+      the verifications above.
 
 ## Phase 8 — Reports & export
 - [ ] Session detail report: on-screen + CSV export (`maatwebsite/excel`)
