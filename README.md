@@ -33,9 +33,17 @@ npm run build
 php artisan serve
 ```
 
-Visit `/admin` and log in with a seeded user (see `database/seeders`).
+Visit `/admin` and log in with a seeded user (password `password` for all, see
+`database/seeders/UserSeeder.php`):
+
+| Role | Email |
+|---|---|
+| Super Admin | `admin@example.com` |
+| Branch Manager | `manager@example.com` |
+| Counter | `counter@example.com` / `counter2@example.com` |
 
 ## Deployment
 
-Target is cPanel shared hosting. See `tasks.md` Phase 11 and SPEC §8 — HTTPS is a
-hard requirement in production because camera-based scanning needs a secure context.
+Target is cPanel shared hosting. See **`docs/DEPLOYMENT.md`** for the full
+checklist — HTTPS is a hard requirement in production because camera-based
+scanning needs a secure context (SPEC §8).

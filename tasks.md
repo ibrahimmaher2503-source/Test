@@ -268,9 +268,21 @@ for field-level detail — this file only sequences the work.
          product created.
 
 ## Phase 11 — Deployment (cPanel)
-- [ ] Confirm SSL/HTTPS on the target domain (hard requirement for camera scanning —
-      see SPEC §8)
-- [ ] Standard Laravel cPanel deployment (no queue workers required for MVP per
-      SPEC §9 point 8)
-- [ ] Smoke test scanning flow on the live domain from an actual phone, not just
-      locally
+- [x] Documented in `docs/DEPLOYMENT.md`: SSL/HTTPS setup via cPanel AutoSSL +
+      forced-HTTPS redirect, and *why* it's non-negotiable (camera access is
+      blocked outright without a secure context, not degraded — SPEC §8).
+- [x] Documented in `docs/DEPLOYMENT.md`: standard cPanel deployment steps —
+      code upload, document-root/public-folder handling for hosts that don't
+      allow changing it, `composer install --no-dev`, production `.env` template
+      (`QUEUE_CONNECTION=sync`, matching SPEC §9's no-queue-workers decision),
+      migrations, file permissions, and a rollback note.
+- [ ] **Not done — cannot be done from this sandbox.** There is no real cPanel
+      host, domain, or phone available here. `docs/DEPLOYMENT.md` §4 is a
+      step-by-step smoke-test checklist for whoever deploys this to run on an
+      actual phone against the live HTTPS domain (login as each role, run a full
+      session lifecycle, scan a real printed barcode with the real camera, verify
+      the keyboard-wedge fallback, check CSV export and Arabic RTL on-device).
+      This is a genuine gap, not a formality — everything scanning-related in
+      this project up to now was verified with Chromium's *fake* camera device in
+      a headless sandbox (see Phase 7), which proves the code path works but
+      cannot stand in for real camera/touch ergonomics on a physical phone.
