@@ -15,10 +15,13 @@ class InventoryCountLinePolicy
 
     /**
      * Determine whether the user can view any models.
+     *
+     * Read-only monitoring in the session detail page (SPEC §4.6) — count lines
+     * are only ever written by the scanning screen, never through Filament CRUD.
      */
     public function viewAny(User $user): bool
     {
-        return false;
+        return $user->hasRole(User::ROLE_BRANCH_MANAGER);
     }
 
     /**
@@ -26,7 +29,7 @@ class InventoryCountLinePolicy
      */
     public function view(User $user, InventoryCountLine $inventoryCountLine): bool
     {
-        return false;
+        return $user->hasRole(User::ROLE_BRANCH_MANAGER);
     }
 
     /**

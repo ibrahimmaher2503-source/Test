@@ -15,10 +15,15 @@ class InventorySessionPolicy
 
     /**
      * Determine whether the user can view any models.
+     *
+     * Inventory Sessions screen is Branch Manager (own branch) + Super Admin (all
+     * branches) per SPEC §4.6. Counters never reach this resource — they work
+     * through the scanning screen (Phase 7), which checks their own assignment
+     * directly rather than through this policy.
      */
     public function viewAny(User $user): bool
     {
-        return false;
+        return $user->hasRole(User::ROLE_BRANCH_MANAGER);
     }
 
     /**
@@ -26,7 +31,7 @@ class InventorySessionPolicy
      */
     public function view(User $user, InventorySession $inventorySession): bool
     {
-        return false;
+        return $user->hasRole(User::ROLE_BRANCH_MANAGER) && $inventorySession->branch_id === $user->branch_id;
     }
 
     /**
@@ -34,7 +39,7 @@ class InventorySessionPolicy
      */
     public function create(User $user): bool
     {
-        return false;
+        return $user->hasRole(User::ROLE_BRANCH_MANAGER);
     }
 
     /**
@@ -42,7 +47,7 @@ class InventorySessionPolicy
      */
     public function update(User $user, InventorySession $inventorySession): bool
     {
-        return false;
+        return $user->hasRole(User::ROLE_BRANCH_MANAGER) && $inventorySession->branch_id === $user->branch_id;
     }
 
     /**
@@ -50,7 +55,7 @@ class InventorySessionPolicy
      */
     public function delete(User $user, InventorySession $inventorySession): bool
     {
-        return false;
+        return $user->hasRole(User::ROLE_BRANCH_MANAGER) && $inventorySession->branch_id === $user->branch_id;
     }
 
     /**

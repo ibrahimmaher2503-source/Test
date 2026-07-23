@@ -100,13 +100,26 @@ for field-level detail — this file only sequences the work.
       visually as Super Admin ("Last updated by: Branch Manager" on that row).
 
 ## Phase 6 — Inventory sessions (management side)
-- [ ] Inventory Sessions Filament resource: create (draft), assign counters, start,
-      view live line-item progress, submit, approve, close (SPEC §5.2 lifecycle)
-- [ ] Enforce: only one `in_progress` session per branch at a time
-- [ ] Session detail page: count lines table with expected / counted / variance,
-      filter/sort by "variance ≠ 0"
-- [ ] Role checks: Counter cannot approve/close; Branch Manager only sees own branch;
-      Super Admin sees all
+- [x] Inventory Sessions Filament resource: create (draft, with auto-generated
+      `INV-{branch_code}-{date}-{seq}` reference via `InventorySessionReferenceGenerator`),
+      assign counters (multi-select scoped to the branch's counter users), start,
+      view live line-item progress (`CountLinesRelationManager`), submit, approve,
+      close (SPEC §5.2 lifecycle) — each transition is its own table action, visible
+      only in the state it applies from.
+- [x] Enforce: only one `in_progress` session per branch at a time — checked inside
+      the "Start" action, blocks with a Filament notification if violated.
+      Browser-verified: started one session, tried starting a second draft for the
+      same branch, got "This branch already has a session in progress." and the
+      second session correctly stayed in `draft`.
+- [x] Session detail page: count lines table with expected / counted / variance,
+      filter/sort by "variance ≠ 0" (`whereColumn` filter, since `variance` is a
+      computed accessor, not a DB column — can't filter on it directly).
+- [x] Role checks: Counter cannot approve/close — enforced at the resource level,
+      Counters get 403 on `/admin/inventory-sessions` entirely (browser-verified);
+      Branch Manager only sees own branch (`getEloquentQuery` scoping + policy
+      `branch_id` check); Super Admin sees all. Full lifecycle browser-tested
+      end to end (create → start → submit → approve → close), confirmed in the DB
+      after each transition.
 
 ## Phase 7 — Scanning screen (the core feature)
 - [ ] Custom Livewire page, mobile-first layout, reachable only for the session's
