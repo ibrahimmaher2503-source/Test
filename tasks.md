@@ -226,12 +226,46 @@ for field-level detail — this file only sequences the work.
   shipping if time allows, flagged here rather than silently claimed complete.
 
 ## Phase 10 — QA pass
-- [ ] Full walkthrough as each of the three roles, confirming scope boundaries from
-      SPEC §2 hold (a Counter genuinely cannot reach anything outside their assigned,
-      in_progress session; a Branch Manager genuinely cannot see another branch)
-- [ ] Confirm `scan_events` is truly append-only (no update/delete path exists)
-- [ ] Confirm barcode uniqueness constraint holds and produces a sane error, not a
-      500, when violated
+- [x] Full walkthrough as each of the three roles — final consolidated matrix,
+      every screen built across Phases 3–8, browser-verified with real HTTP status
+      codes per role:
+      - **Super Admin**: 200 on all 9 screens.
+      - **Branch Manager**: 403 only on `/admin/branches`; 200 on Categories,
+        Products, Expected Stock, Inventory Sessions, My Sessions, Users, and both
+        Reports — exactly matching SPEC §2's role table.
+      - **Counter**: 200 only on `/admin/my-inventory-sessions`; 403 on all 8 other
+        screens. An other-branch/unassigned counter also gets 403 specifically on
+        `scanning-screen/{session}` for a session they're not assigned to
+        (re-verified from Phase 7).
+      Cross-branch data isolation (not just screen access) was verified per-phase
+      as each resource was built: Product Branch Stock, Inventory Sessions, Users,
+      and both Reports all hard-scope Branch Manager to their own branch's rows,
+      not just gate the screen.
+- [x] Confirm `scan_events` is truly append-only (no update/delete path exists) —
+      re-verified directly: a tinker `update()` and `delete()` against a real
+      `ScanEvent` row both throw the model-level `LogicException`; there is also no
+      Filament resource for `ScanEvent` at all, so no admin UI surface exists to
+      even attempt it.
+- [x] Confirm barcode uniqueness constraint holds and produces a sane error, not a
+      500, when violated. **Found and fixed two real bugs here:**
+      1. `ProductResource`'s `sku`, `barcode` fields and `BranchResource`'s `code`
+         field had DB-level `unique` constraints but no matching Filament
+         `->unique()` form validation — a duplicate would have hit the DB
+         constraint raw and thrown an uncaught `QueryException` (500) instead of
+         a friendly inline error. Fixed by adding `->unique(ignoreRecord: true)`
+         to all three. Browser-verified: submitting a duplicate barcode now shows
+         "The barcode has already been taken." inline, no crash.
+      2. The scanning screen's barcode lookup filtered to `status = 'active'`
+         only, so re-scanning a barcode belonging to an existing
+         `pending_review` (or `inactive`) product looked "unknown" again — and
+         confirming the quick-create form a second time would have tried to
+         insert a second product with the same barcode and crashed on the unique
+         constraint. Fixed by matching on barcode alone (any status counts as
+         known); added a second defense-in-depth re-check right before insert for
+         the genuine race case (two counters scanning the same brand-new barcode
+         at once). Browser-verified: re-scanning a `pending_review` product's
+         barcode now increments its count line directly, no prompt, no duplicate
+         product created.
 
 ## Phase 11 — Deployment (cPanel)
 - [ ] Confirm SSL/HTTPS on the target domain (hard requirement for camera scanning —

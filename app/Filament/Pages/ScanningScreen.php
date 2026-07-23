@@ -117,9 +117,14 @@ class ScanningScreen extends Page implements HasForms
             return;
         }
 
+        // Any existing product with this barcode counts, regardless of status --
+        // not just 'active'. Filtering to active-only here would mean a
+        // pending_review product (e.g. from an earlier unknown-barcode scan)
+        // looks "unknown" again on a second scan, and the quick-create form
+        // would then try to insert a second product with the same barcode and
+        // crash on the unique constraint instead of just counting it again.
         $product = Product::query()
             ->where('barcode', $rawBarcode)
-            ->where('status', 'active')
             ->first();
 
         if ($product) {
@@ -184,17 +189,26 @@ class ScanningScreen extends Page implements HasForms
             'newProductUnit' => ['required', 'string', 'max:255'],
         ]);
 
-        $product = Product::create([
-            'sku' => 'SCN-'.strtoupper(uniqid()),
-            'barcode' => $this->unknownBarcode,
-            'barcode_source' => 'existing',
-            'name_en' => $this->newProductNameEn,
-            'name_ar' => $this->newProductNameAr,
-            'category_id' => $this->newProductCategoryId,
-            'unit' => $this->newProductUnit,
-            'status' => 'pending_review',
-            'is_active' => true,
-        ]);
+        // Defense in depth against a race: two counters scanning the same brand-new
+        // barcode at the same moment could both pass the "unknown" check in scan()
+        // before either has inserted a row. Re-check right before creating, and if
+        // another request already won, just count the product it created instead
+        // of hitting the DB's unique constraint and surfacing a raw error.
+        $product = Product::query()->where('barcode', $this->unknownBarcode)->first();
+
+        if (! $product) {
+            $product = Product::create([
+                'sku' => 'SCN-'.strtoupper(uniqid()),
+                'barcode' => $this->unknownBarcode,
+                'barcode_source' => 'existing',
+                'name_en' => $this->newProductNameEn,
+                'name_ar' => $this->newProductNameAr,
+                'category_id' => $this->newProductCategoryId,
+                'unit' => $this->newProductUnit,
+                'status' => 'pending_review',
+                'is_active' => true,
+            ]);
+        }
 
         $this->recordScan($product, $this->unknownBarcode);
 

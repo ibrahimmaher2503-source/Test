@@ -45,9 +45,11 @@ class ProductResource extends Resource
                 Forms\Components\TextInput::make('sku')
                     ->label(__('app.product.fields.sku'))
                     ->required()
+                    ->unique(ignoreRecord: true)
                     ->maxLength(255),
                 Forms\Components\TextInput::make('barcode')
                     ->label(__('app.product.fields.barcode'))
+                    ->unique(ignoreRecord: true)
                     ->maxLength(255)
                     ->default(null)
                     ->helperText('Leave blank and use "Generate barcode" from the table once saved, or enter a value scanned from a real label.')
