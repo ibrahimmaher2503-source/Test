@@ -24,10 +24,6 @@ class BranchSummaryReport extends Page implements HasForms
 
     protected static ?string $navigationIcon = 'heroicon-o-chart-bar-square';
 
-    protected static ?string $navigationGroup = 'Reports';
-
-    protected static ?string $title = 'Branch Summary Report';
-
     protected static string $view = 'filament.pages.branch-summary-report';
 
     public ?array $data = [];
@@ -35,6 +31,21 @@ class BranchSummaryReport extends Page implements HasForms
     public static function canAccess(): bool
     {
         return auth()->user()?->hasAnyRole([User::ROLE_SUPER_ADMIN, User::ROLE_BRANCH_MANAGER]) ?? false;
+    }
+
+    public static function getNavigationGroup(): ?string
+    {
+        return __('app.nav.reports');
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        return __('app.reports.branch_summary.nav_label');
+    }
+
+    public function getTitle(): string
+    {
+        return __('app.reports.branch_summary.title');
     }
 
     public function mount(): void
@@ -55,12 +66,12 @@ class BranchSummaryReport extends Page implements HasForms
 
         return $form
             ->schema([
-                DatePicker::make('from')->required(),
-                DatePicker::make('to')->required(),
+                DatePicker::make('from')->label(__('app.reports.branch_summary.from'))->required(),
+                DatePicker::make('to')->label(__('app.reports.branch_summary.to'))->required(),
                 Select::make('branch_id')
-                    ->label('Branch')
+                    ->label(__('app.reports.branch_summary.branch'))
                     ->options(Branch::query()->pluck('name_en', 'id'))
-                    ->placeholder('All branches')
+                    ->placeholder(__('app.reports.branch_summary.all_branches'))
                     ->visible($isSuperAdmin)
                     ->disabled(! $isSuperAdmin),
             ])

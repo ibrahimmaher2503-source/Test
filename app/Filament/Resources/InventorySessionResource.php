@@ -23,7 +23,25 @@ class InventorySessionResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-clipboard-document-check';
 
-    protected static ?string $navigationGroup = 'Inventory';
+    public static function getNavigationGroup(): ?string
+    {
+        return __('app.nav.inventory');
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        return __('app.session.nav_label');
+    }
+
+    public static function getModelLabel(): string
+    {
+        return __('app.session.label');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('app.session.plural_label');
+    }
 
     public static function form(Form $form): Form
     {
@@ -33,7 +51,7 @@ class InventorySessionResource extends Resource
         return $form
             ->schema([
                 Forms\Components\Select::make('branch_id')
-                    ->label('Branch')
+                    ->label(__('app.session.fields.branch'))
                     ->relationship('branch', 'name_en')
                     ->default($isBranchManager ? $user->branch_id : null)
                     ->disabled(fn (string $operation): bool => $isBranchManager || $operation === 'edit')
@@ -41,6 +59,7 @@ class InventorySessionResource extends Resource
                     ->required()
                     ->live(),
                 Forms\Components\Select::make('counters')
+                    ->label(__('app.session.fields.counters'))
                     ->relationship('counters', 'name')
                     ->options(function (Get $get) {
                         $branchId = $get('branch_id');
@@ -59,6 +78,7 @@ class InventorySessionResource extends Resource
                     ->preload()
                     ->helperText('Only counters from the selected branch are listed.'),
                 Forms\Components\Textarea::make('notes')
+                    ->label(__('app.session.fields.notes'))
                     ->columnSpanFull(),
             ]);
     }
@@ -67,16 +87,17 @@ class InventorySessionResource extends Resource
     {
         return $infolist
             ->schema([
-                TextEntry::make('reference'),
-                TextEntry::make('branch.name_en')->label('Branch'),
-                TextEntry::make('status')->badge(),
-                TextEntry::make('createdBy.name')->label('Created by'),
-                TextEntry::make('counters.name')->label('Assigned counters')->listWithLineBreaks(),
-                TextEntry::make('started_at')->dateTime()->placeholder('—'),
-                TextEntry::make('submitted_at')->dateTime()->placeholder('—'),
-                TextEntry::make('approvedBy.name')->label('Approved by')->placeholder('—'),
-                TextEntry::make('approved_at')->dateTime()->placeholder('—'),
-                TextEntry::make('notes')->placeholder('—')->columnSpanFull(),
+                TextEntry::make('reference')->label(__('app.session.fields.reference')),
+                TextEntry::make('branch.name_en')->label(__('app.session.fields.branch')),
+                TextEntry::make('status')->label(__('app.session.fields.status'))->badge()
+                    ->formatStateUsing(fn (string $state): string => __("app.session.status.{$state}")),
+                TextEntry::make('createdBy.name')->label(__('app.session.fields.created_by')),
+                TextEntry::make('counters.name')->label(__('app.session.fields.counters'))->listWithLineBreaks(),
+                TextEntry::make('started_at')->label(__('app.session.fields.started_at'))->dateTime()->placeholder('—'),
+                TextEntry::make('submitted_at')->label(__('app.session.fields.submitted_at'))->dateTime()->placeholder('—'),
+                TextEntry::make('approvedBy.name')->label(__('app.session.fields.approved_by'))->placeholder('—'),
+                TextEntry::make('approved_at')->label(__('app.session.fields.approved_at'))->dateTime()->placeholder('—'),
+                TextEntry::make('notes')->label(__('app.session.fields.notes'))->placeholder('—')->columnSpanFull(),
             ]);
     }
 
@@ -85,12 +106,15 @@ class InventorySessionResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('reference')
+                    ->label(__('app.session.fields.reference'))
                     ->searchable(),
                 Tables\Columns\TextColumn::make('branch.name_en')
-                    ->label('Branch')
+                    ->label(__('app.session.fields.branch'))
                     ->sortable(),
                 Tables\Columns\TextColumn::make('status')
+                    ->label(__('app.session.fields.status'))
                     ->badge()
+                    ->formatStateUsing(fn (string $state): string => __("app.session.status.{$state}"))
                     ->color(fn (string $state): string => match ($state) {
                         InventorySession::STATUS_DRAFT => 'gray',
                         InventorySession::STATUS_IN_PROGRESS => 'info',
@@ -99,33 +123,37 @@ class InventorySessionResource extends Resource
                     }),
                 Tables\Columns\TextColumn::make('counters_count')
                     ->counts('counters')
-                    ->label('Counters'),
+                    ->label(__('app.session.fields.counters')),
                 Tables\Columns\TextColumn::make('createdBy.name')
-                    ->label('Created by'),
+                    ->label(__('app.session.fields.created_by')),
                 Tables\Columns\TextColumn::make('started_at')
+                    ->label(__('app.session.fields.started_at'))
                     ->dateTime()
                     ->placeholder('—')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('submitted_at')
+                    ->label(__('app.session.fields.submitted_at'))
                     ->dateTime()
                     ->placeholder('—')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('approved_at')
+                    ->label(__('app.session.fields.approved_at'))
                     ->dateTime()
                     ->placeholder('—')
                     ->sortable(),
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('status')
+                    ->label(__('app.session.fields.status'))
                     ->options([
-                        InventorySession::STATUS_DRAFT => 'Draft',
-                        InventorySession::STATUS_IN_PROGRESS => 'In progress',
-                        InventorySession::STATUS_SUBMITTED => 'Submitted',
-                        InventorySession::STATUS_APPROVED => 'Approved',
-                        InventorySession::STATUS_CLOSED => 'Closed',
+                        InventorySession::STATUS_DRAFT => __('app.session.status.draft'),
+                        InventorySession::STATUS_IN_PROGRESS => __('app.session.status.in_progress'),
+                        InventorySession::STATUS_SUBMITTED => __('app.session.status.submitted'),
+                        InventorySession::STATUS_APPROVED => __('app.session.status.approved'),
+                        InventorySession::STATUS_CLOSED => __('app.session.status.closed'),
                     ]),
                 Tables\Filters\SelectFilter::make('branch_id')
-                    ->label('Branch')
+                    ->label(__('app.session.fields.branch'))
                     ->relationship('branch', 'name_en')
                     ->visible(fn (): bool => auth()->user()->hasRole(User::ROLE_SUPER_ADMIN)),
             ])
@@ -134,7 +162,7 @@ class InventorySessionResource extends Resource
                 Tables\Actions\EditAction::make()
                     ->visible(fn (InventorySession $record): bool => $record->status === InventorySession::STATUS_DRAFT),
                 Tables\Actions\Action::make('start')
-                    ->label('Start')
+                    ->label(__('app.session.actions.start'))
                     ->icon('heroicon-o-play')
                     ->color('info')
                     ->requiresConfirmation()
@@ -147,7 +175,7 @@ class InventorySessionResource extends Resource
 
                         if ($alreadyInProgress) {
                             Notification::make()
-                                ->title('This branch already has a session in progress.')
+                                ->title(__('app.session.notifications.already_in_progress'))
                                 ->danger()
                                 ->send();
 
@@ -160,7 +188,7 @@ class InventorySessionResource extends Resource
                         ]);
                     }),
                 Tables\Actions\Action::make('submit')
-                    ->label('Submit')
+                    ->label(__('app.session.actions.submit'))
                     ->icon('heroicon-o-paper-airplane')
                     ->color('warning')
                     ->requiresConfirmation()
@@ -170,7 +198,7 @@ class InventorySessionResource extends Resource
                         'submitted_at' => now(),
                     ])),
                 Tables\Actions\Action::make('approve')
-                    ->label('Approve')
+                    ->label(__('app.session.actions.approve'))
                     ->icon('heroicon-o-check-circle')
                     ->color('success')
                     ->requiresConfirmation()
@@ -181,7 +209,7 @@ class InventorySessionResource extends Resource
                         'approved_at' => now(),
                     ])),
                 Tables\Actions\Action::make('close')
-                    ->label('Close')
+                    ->label(__('app.session.actions.close'))
                     ->icon('heroicon-o-lock-closed')
                     ->color('gray')
                     ->requiresConfirmation()

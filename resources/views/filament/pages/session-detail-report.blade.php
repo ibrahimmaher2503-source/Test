@@ -8,7 +8,7 @@
     @if (($data['session_id'] ?? null) && $lines->isNotEmpty())
         <div class="mt-4 flex justify-end">
             <button wire:click="export" type="button" class="fi-btn rounded-lg bg-primary-600 px-4 py-2 text-white">
-                Export CSV
+                {{ __('app.reports.session_detail.export_csv') }}
             </button>
         </div>
 
@@ -16,13 +16,13 @@
             <table class="w-full text-sm">
                 <thead class="bg-gray-50 dark:bg-gray-800">
                     <tr>
-                        <th class="p-2 text-start">SKU</th>
-                        <th class="p-2 text-start">Product</th>
-                        <th class="p-2 text-end">Expected</th>
-                        <th class="p-2 text-end">Counted</th>
-                        <th class="p-2 text-end">Variance</th>
-                        <th class="p-2 text-start">Last scanned by</th>
-                        <th class="p-2 text-start">Last scanned at</th>
+                        <th class="p-2 text-start">{{ __('app.count_lines.fields.sku') }}</th>
+                        <th class="p-2 text-start">{{ __('app.count_lines.fields.product') }}</th>
+                        <th class="p-2 text-end">{{ __('app.count_lines.fields.expected') }}</th>
+                        <th class="p-2 text-end">{{ __('app.count_lines.fields.counted') }}</th>
+                        <th class="p-2 text-end">{{ __('app.count_lines.fields.variance') }}</th>
+                        <th class="p-2 text-start">{{ __('app.count_lines.fields.last_scanned_by') }}</th>
+                        <th class="p-2 text-start">{{ __('app.count_lines.fields.last_scanned_at') }}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -41,6 +41,6 @@
             </table>
         </div>
     @elseif ($data['session_id'] ?? null)
-        <p class="mt-4 text-gray-500">No count lines for this session yet.</p>
+        <p class="mt-4 text-gray-500">{{ __('app.reports.session_detail.no_lines') }}</p>
     @endif
 </x-filament-panels::page>

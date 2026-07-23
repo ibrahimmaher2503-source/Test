@@ -17,12 +17,6 @@ class MyInventorySessions extends Page implements HasTable
 
     protected static ?string $navigationIcon = 'heroicon-o-qr-code';
 
-    protected static ?string $navigationLabel = 'My Sessions';
-
-    protected static ?string $navigationGroup = 'Inventory';
-
-    protected static ?string $title = 'My Sessions';
-
     protected static string $view = 'filament.pages.my-inventory-sessions';
 
     public static function canAccess(): bool
@@ -32,6 +26,21 @@ class MyInventorySessions extends Page implements HasTable
             User::ROLE_BRANCH_MANAGER,
             User::ROLE_COUNTER,
         ]) ?? false;
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        return __('app.scanning.nav_label');
+    }
+
+    public static function getNavigationGroup(): ?string
+    {
+        return __('app.nav.inventory');
+    }
+
+    public function getTitle(): string
+    {
+        return __('app.scanning.nav_label');
     }
 
     public function table(Table $table): Table
@@ -52,14 +61,14 @@ class MyInventorySessions extends Page implements HasTable
                     )
             )
             ->columns([
-                Tables\Columns\TextColumn::make('reference'),
-                Tables\Columns\TextColumn::make('branch.name_en')->label('Branch'),
-                Tables\Columns\TextColumn::make('started_at')->dateTime(),
-                Tables\Columns\TextColumn::make('counters_count')->counts('counters')->label('Counters'),
+                Tables\Columns\TextColumn::make('reference')->label(__('app.session.fields.reference')),
+                Tables\Columns\TextColumn::make('branch.name_en')->label(__('app.session.fields.branch')),
+                Tables\Columns\TextColumn::make('started_at')->label(__('app.session.fields.started_at'))->dateTime(),
+                Tables\Columns\TextColumn::make('counters_count')->counts('counters')->label(__('app.session.fields.counters')),
             ])
             ->actions([
                 Tables\Actions\Action::make('scan')
-                    ->label('Scan')
+                    ->label(__('app.scanning.scan_button'))
                     ->icon('heroicon-o-qr-code')
                     ->url(fn (InventorySession $record): string => ScanningScreen::getUrl(['session' => $record->id])),
             ]);

@@ -20,7 +20,25 @@ class UserResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-users';
 
-    protected static ?string $navigationGroup = 'Administration';
+    public static function getNavigationGroup(): ?string
+    {
+        return __('app.nav.administration');
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        return __('app.user.nav_label');
+    }
+
+    public static function getModelLabel(): string
+    {
+        return __('app.user.label');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('app.user.plural_label');
+    }
 
     public static function form(Form $form): Form
     {
@@ -30,27 +48,30 @@ class UserResource extends Resource
         return $form
             ->schema([
                 Forms\Components\TextInput::make('name')
+                    ->label(__('app.user.fields.name'))
                     ->required()
                     ->maxLength(255),
                 Forms\Components\TextInput::make('email')
+                    ->label(__('app.user.fields.email'))
                     ->email()
                     ->required()
                     ->unique(ignoreRecord: true)
                     ->maxLength(255),
                 Forms\Components\TextInput::make('password')
+                    ->label(__('app.user.fields.password'))
                     ->password()
                     ->required(fn (string $operation): bool => $operation === 'create')
                     ->dehydrated(fn (?string $state): bool => filled($state))
                     ->dehydrateStateUsing(fn (string $state): string => Hash::make($state))
                     ->maxLength(255),
                 Forms\Components\Select::make('role')
-                    ->label('Role')
+                    ->label(__('app.user.fields.role'))
                     ->options($isBranchManager
-                        ? [User::ROLE_COUNTER => 'Counter']
+                        ? [User::ROLE_COUNTER => __('app.user.roles.counter')]
                         : [
-                            User::ROLE_SUPER_ADMIN => 'Super Admin',
-                            User::ROLE_BRANCH_MANAGER => 'Branch Manager',
-                            User::ROLE_COUNTER => 'Counter',
+                            User::ROLE_SUPER_ADMIN => __('app.user.roles.super_admin'),
+                            User::ROLE_BRANCH_MANAGER => __('app.user.roles.branch_manager'),
+                            User::ROLE_COUNTER => __('app.user.roles.counter'),
                         ])
                     ->default($isBranchManager ? User::ROLE_COUNTER : null)
                     ->disabled($isBranchManager)
@@ -65,7 +86,7 @@ class UserResource extends Resource
                         }
                     }),
                 Forms\Components\Select::make('branch_id')
-                    ->label('Branch')
+                    ->label(__('app.user.fields.branch'))
                     ->options(Branch::query()->pluck('name_en', 'id'))
                     ->default($isBranchManager ? $currentUser->branch_id : null)
                     ->disabled($isBranchManager)
@@ -80,14 +101,17 @@ class UserResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('name')
+                    ->label(__('app.user.fields.name'))
                     ->searchable(),
                 Tables\Columns\TextColumn::make('email')
+                    ->label(__('app.user.fields.email'))
                     ->searchable(),
                 Tables\Columns\TextColumn::make('roles.name')
-                    ->label('Role')
-                    ->badge(),
+                    ->label(__('app.user.fields.role'))
+                    ->badge()
+                    ->formatStateUsing(fn (string $state): string => __("app.user.roles.{$state}")),
                 Tables\Columns\TextColumn::make('branch.name_en')
-                    ->label('Branch')
+                    ->label(__('app.user.fields.branch'))
                     ->placeholder('—'),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()

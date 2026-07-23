@@ -18,17 +18,26 @@ class ProductBranchStockGrid extends Page implements HasTable
 
     protected static ?string $navigationIcon = 'heroicon-o-clipboard-document-list';
 
-    protected static ?string $navigationLabel = 'Expected Stock';
-
-    protected static ?string $navigationGroup = 'Catalog';
-
-    protected static ?string $title = 'Product Branch Stock';
-
     protected static string $view = 'filament.pages.product-branch-stock-grid';
 
     public static function canAccess(): bool
     {
         return auth()->user()?->hasAnyRole([User::ROLE_SUPER_ADMIN, User::ROLE_BRANCH_MANAGER]) ?? false;
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        return __('app.stock.nav_label');
+    }
+
+    public static function getNavigationGroup(): ?string
+    {
+        return __('app.nav.catalog');
+    }
+
+    public function getTitle(): string
+    {
+        return __('app.stock.title');
     }
 
     public function table(Table $table): Table
@@ -44,19 +53,19 @@ class ProductBranchStockGrid extends Page implements HasTable
             )
             ->columns([
                 Tables\Columns\TextColumn::make('branch.name_en')
-                    ->label('Branch')
+                    ->label(__('app.stock.fields.branch'))
                     ->visible($isSuperAdmin)
                     ->sortable(),
                 Tables\Columns\TextColumn::make('product.sku')
-                    ->label('SKU')
+                    ->label(__('app.stock.fields.sku'))
                     ->searchable(),
                 Tables\Columns\TextColumn::make('product.name_en')
-                    ->label('Product')
+                    ->label(__('app.stock.fields.product'))
                     ->description(fn (ProductBranchStock $record): string => $record->product->name_ar)
                     ->searchable()
                     ->sortable(),
                 Tables\Columns\TextInputColumn::make('expected_quantity')
-                    ->label('Expected qty')
+                    ->label(__('app.stock.fields.expected_quantity'))
                     ->type('number')
                     ->rules(['required', 'integer', 'min:0'])
                     ->updateStateUsing(function (ProductBranchStock $record, $state): int {
@@ -70,16 +79,16 @@ class ProductBranchStockGrid extends Page implements HasTable
                         return $quantity;
                     }),
                 Tables\Columns\TextColumn::make('updatedBy.name')
-                    ->label('Last updated by')
+                    ->label(__('app.stock.fields.updated_by'))
                     ->placeholder('—'),
                 Tables\Columns\TextColumn::make('updated_at')
-                    ->label('Last updated')
+                    ->label(__('app.stock.fields.updated_at'))
                     ->dateTime()
                     ->sortable(),
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('branch_id')
-                    ->label('Branch')
+                    ->label(__('app.stock.fields.branch'))
                     ->options(Branch::query()->pluck('name_en', 'id'))
                     ->visible($isSuperAdmin),
             ]);

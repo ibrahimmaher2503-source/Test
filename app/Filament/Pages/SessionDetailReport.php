@@ -22,10 +22,6 @@ class SessionDetailReport extends Page implements HasForms
 
     protected static ?string $navigationIcon = 'heroicon-o-document-chart-bar';
 
-    protected static ?string $navigationGroup = 'Reports';
-
-    protected static ?string $title = 'Session Detail Report';
-
     protected static string $view = 'filament.pages.session-detail-report';
 
     public ?array $data = [];
@@ -33,6 +29,21 @@ class SessionDetailReport extends Page implements HasForms
     public static function canAccess(): bool
     {
         return auth()->user()?->hasAnyRole([User::ROLE_SUPER_ADMIN, User::ROLE_BRANCH_MANAGER]) ?? false;
+    }
+
+    public static function getNavigationGroup(): ?string
+    {
+        return __('app.nav.reports');
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        return __('app.reports.session_detail.nav_label');
+    }
+
+    public function getTitle(): string
+    {
+        return __('app.reports.session_detail.title');
     }
 
     public function mount(): void
@@ -47,7 +58,7 @@ class SessionDetailReport extends Page implements HasForms
         return $form
             ->schema([
                 Select::make('session_id')
-                    ->label('Session')
+                    ->label(__('app.reports.session_detail.session_field'))
                     ->options(
                         InventorySession::query()
                             ->when(

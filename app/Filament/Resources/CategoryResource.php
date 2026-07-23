@@ -3,15 +3,12 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\CategoryResource\Pages;
-use App\Filament\Resources\CategoryResource\RelationManagers;
 use App\Models\Category;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class CategoryResource extends Resource
 {
@@ -19,16 +16,36 @@ class CategoryResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-tag';
 
-    protected static ?string $navigationGroup = 'Catalog';
+    public static function getNavigationGroup(): ?string
+    {
+        return __('app.nav.catalog');
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        return __('app.category.nav_label');
+    }
+
+    public static function getModelLabel(): string
+    {
+        return __('app.category.label');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('app.category.plural_label');
+    }
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
                 Forms\Components\TextInput::make('name_en')
+                    ->label(__('app.category.fields.name_en'))
                     ->required()
                     ->maxLength(255),
                 Forms\Components\TextInput::make('name_ar')
+                    ->label(__('app.category.fields.name_ar'))
                     ->required()
                     ->maxLength(255),
             ]);
@@ -39,8 +56,10 @@ class CategoryResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('name_en')
+                    ->label(__('app.category.fields.name_en'))
                     ->searchable(),
                 Tables\Columns\TextColumn::make('name_ar')
+                    ->label(__('app.category.fields.name_ar'))
                     ->searchable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()

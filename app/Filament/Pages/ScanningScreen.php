@@ -77,7 +77,7 @@ class ScanningScreen extends Page implements HasForms
 
     public function getTitle(): string
     {
-        return "Scan — {$this->session->reference}";
+        return __('app.scanning.title')." — {$this->session->reference}";
     }
 
     protected function refreshRunningList(): void
@@ -112,7 +112,7 @@ class ScanningScreen extends Page implements HasForms
         }
 
         if (! $this->canScan()) {
-            Notification::make()->title('This session is not open for scanning.')->danger()->send();
+            Notification::make()->title(__('app.scanning.not_open_for_scanning'))->danger()->send();
 
             return;
         }
@@ -167,13 +167,13 @@ class ScanningScreen extends Page implements HasForms
 
         $this->refreshRunningList();
 
-        Notification::make()->title("Counted: {$product->name_en}")->success()->send();
+        Notification::make()->title(__('app.scanning.counted_notification', ['name' => $product->name_en]))->success()->send();
     }
 
     public function createPendingProduct(): void
     {
         if (! $this->canScan()) {
-            Notification::make()->title('This session is not open for scanning.')->danger()->send();
+            Notification::make()->title(__('app.scanning.not_open_for_scanning'))->danger()->send();
 
             return;
         }
@@ -220,7 +220,7 @@ class ScanningScreen extends Page implements HasForms
     public function saveManualAdjust(): void
     {
         if (! $this->canScan()) {
-            Notification::make()->title('This session is not open for editing.')->danger()->send();
+            Notification::make()->title(__('app.scanning.not_open_for_editing'))->danger()->send();
 
             return;
         }
@@ -243,7 +243,7 @@ class ScanningScreen extends Page implements HasForms
         $this->reset(['manualAdjustLineId', 'manualAdjustQuantity', 'manualAdjustNote']);
         $this->refreshRunningList();
 
-        Notification::make()->title('Quantity updated manually')->success()->send();
+        Notification::make()->title(__('app.scanning.manual_update_notification'))->success()->send();
     }
 
     public function cancelManualAdjust(): void

@@ -14,6 +14,7 @@
         }
         .barcode-img { width: 140px; height: auto; }
         .product-name { margin-top: 4px; font-weight: bold; }
+        .product-name-ar { direction: rtl; unicode-bidi: embed; }
         .product-sku { color: #555; }
     </style>
 </head>
@@ -24,7 +25,8 @@
                 @foreach ($row as $product)
                     <td class="label">
                         <img class="barcode-img" src="{{ $barcodes[$product->id] }}" alt="{{ $product->barcode }}">
-                        <div class="product-name">{{ $product->name_en }} / {{ $product->name_ar }}</div>
+                        <div class="product-name" dir="ltr">{{ $product->name_en }}</div>
+                        <div class="product-name product-name-ar" dir="rtl">{{ $product->name_ar }}</div>
                         <div class="product-sku">{{ $product->sku }}</div>
                     </td>
                 @endforeach

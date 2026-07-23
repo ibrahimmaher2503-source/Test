@@ -195,10 +195,35 @@ for field-level detail — this file only sequences the work.
   type before fixing the type hints, so no other change was needed.
 
 ## Phase 9 — Bilingual EN/AR + RTL
-- [ ] All new screens pass through translation files, no hardcoded English strings
-- [ ] Arabic locale renders full RTL correctly, including the scanning screen and
-      generated PDF labels/reports
-- [ ] Spot-check Filament's own RTL mode is enabled and functioning
+- [x] All new screens pass through translation files, no hardcoded English strings —
+      `lang/en/app.php` + `lang/ar/app.php` cover every nav label, field label,
+      status/role value, action label, and user-facing notification across all
+      9 resources/pages built in Phases 3–8. Locale switching via `SetLocale`
+      middleware (session-backed) + a topbar link (`renderHook` on
+      `PanelsRenderHook::TOPBAR_END`) + `/locale/{locale}` route.
+- [x] Arabic locale renders full RTL correctly, including the scanning screen and
+      generated PDF labels/reports. Browser-verified across every screen type
+      built so far (standard Resource, custom table Page, custom Livewire Page,
+      RelationManager, dashboard/nav chrome, both Report pages): full RTL layout
+      flip (sidebar to the right, `dir="rtl"`), all labels/badges/notifications in
+      Arabic, and the scanning screen specifically — camera still initializes with
+      a real (fake-device) stream in RTL, keyboard-wedge input, running list, and
+      notifications all correctly translated. Barcode label PDF: Arabic product
+      name rendered in its own `dir="rtl"` block separate from the English name
+      (DomPDF handles mixed-direction text poorly inline, so kept them as two
+      separate lines rather than one bidi string).
+- [x] Spot-check Filament's own RTL mode is enabled and functioning — confirmed
+      Filament ships full built-in Arabic translations + `dir="rtl"` for its own
+      chrome (`vendor/filament/*/resources/lang/ar/*.php`), which activates
+      automatically once `app()->setLocale('ar')` is called; no Filament-side
+      configuration needed beyond that.
+- **Known minor gap:** a handful of Filament-auto-generated fallback strings
+  (e.g. a relation manager's default empty-state text before I added an explicit
+  `emptyStateHeading()`) can still fall back to an untranslated English default
+  if a screen path wasn't exercised during testing. Caught and fixed one instance
+  (`CountLinesRelationManager`'s empty state); there could be others in edge
+  states not covered by the browser passes above — worth a dedicated sweep before
+  shipping if time allows, flagged here rather than silently claimed complete.
 
 ## Phase 10 — QA pass
 - [ ] Full walkthrough as each of the three roles, confirming scope boundaries from
