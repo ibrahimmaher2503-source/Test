@@ -166,9 +166,33 @@ for field-level detail — this file only sequences the work.
       the verifications above.
 
 ## Phase 8 — Reports & export
-- [ ] Session detail report: on-screen + CSV export (`maatwebsite/excel`)
-- [ ] Branch summary report across a date range: on-screen + CSV export
-- [ ] Role-scoped visibility (Branch Manager = own branch only)
+- [x] Session detail report: on-screen + CSV export (`maatwebsite/excel`) —
+      `SessionDetailReport` page + `SessionDetailExport`. Browser-verified: picked
+      a session, saw the on-screen table (expected/counted/variance, variance
+      highlighted when non-zero), downloaded the CSV, confirmed its contents match.
+- [x] Branch summary report across a date range: on-screen + CSV export —
+      `BranchSummaryReport` page + `BranchSummaryExport` +
+      `BranchSummaryReportService`. **[assumption]** "pending review products...
+      per branch" is read as "pending_review products with a count line in a
+      session belonging to that branch in range" — products aren't branch-scoped
+      themselves (catalog is shared, SPEC §2), so this is the closest sensible
+      mapping; SPEC doesn't spell out the alternative.
+- [x] Role-scoped visibility (Branch Manager = own branch only, no branch filter
+      shown; Super Admin gets an "All branches" dropdown). Browser-verified for
+      both report pages, plus Counter gets 403 on both entirely (not part of
+      SPEC §4.8's role list for this screen).
+- **Bug caught and fixed during testing:** `maatwebsite/excel`'s CSV writer
+  rendered integer `0` as a blank cell in the exported file — indistinguishable
+  from missing data (e.g. a branch with 0 sessions in range showed an entirely
+  blank row instead of zeros). The on-screen Blade table never had this problem
+  since it doesn't go through the exporter. Fixed by casting numeric fields to
+  strings in both `WithMapping::map()` implementations before they reach
+  PhpSpreadsheet. Re-verified the downloaded CSV shows `"0"` correctly afterward.
+- **Bug caught and fixed during testing:** both `export()` methods were typed to
+  return `StreamedResponse`, but `Excel::download(..., Excel::CSV)` actually
+  returns `BinaryFileResponse` — a `TypeError` on every export attempt. Confirmed
+  Livewire's `SupportFileDownloads` feature natively accepts either response
+  type before fixing the type hints, so no other change was needed.
 
 ## Phase 9 — Bilingual EN/AR + RTL
 - [ ] All new screens pass through translation files, no hardcoded English strings
